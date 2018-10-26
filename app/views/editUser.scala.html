@@ -1,0 +1,49 @@
+@(id: Long, userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Edit User</h1>
+    <input type="submit" value="Log Out" class="btn primary">
+
+    @b3.form(routes.UserController.update()) {
+
+        <fieldset>
+
+            @b3.text(userForm("firstName"), '_label -> "first name", '_help -> "")
+            @b3.text(userForm("lastName"), '_label -> "last name", '_help -> "")
+            @b3.textarea(userForm("researchAreas"), '_label -> "research areas", '_help -> "")
+            @b3.text(userForm("position"), '_label -> "position", '_help -> "")
+            @b3.text(userForm("phone"), '_label -> "phone", '_help -> "")
+            @b3.text(userForm("fax"), '_label -> "fax", '_help -> "")
+            @b3.text(userForm("address"), '_label -> "address", '_help -> "")
+            @b3.text(userForm("city"), '_label -> "city", '_help -> "")
+            @b3.text(userForm("country"), '_label -> "country", '_help -> "")
+            @b3.text(userForm("zip"), '_label -> "zip", '_help -> "")
+@*//            @b3.date(computerForm("introduced"), '_label -> "Introduced date", '_help -> "")*@
+@*//            @b3.date(computerForm("discontinued"), '_label -> "Discontinued date", '_help -> "")*@
+
+@*//            @b3.select(*@
+@*//                computerForm("company.id"),*@
+@*//                options(Company.options),*@
+@*//                '_label -> "Company", '_default -> "-- Choose a company --",*@
+@*//                '_showConstraints -> false*@
+@*//            )*@
+
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Save" class="btn primary">
+            @*<a href="@routes.Us.list()" class="btn">Cancel</a>*@
+        </div>
+
+    }
+
+@*//    @b3.form(routes.HomeController.delete(id), 'class -> "topRight") {*@
+        @*<input type="submit" value="Delete this computer" class="btn danger">*@
+@*//    }*@
+
+}

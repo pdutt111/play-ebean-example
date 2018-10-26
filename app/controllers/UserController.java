@@ -25,6 +25,28 @@ public class UserController extends Controller {
 //        routes.HomeController.list(0, "name", "asc", "")
             routes.HomeController.list(0,"name","asc","")
     );
+    public Result loginPage(){
+        return ok(views.html.login.render(formFactory.form(User.class)));
+    }
+    public Result login() {
+        Form<User> userForm = formFactory.form(User.class).bindFromRequest();
+        if(userForm.hasErrors()) {
+            return ok(views.html.login.render(formFactory.form(User.class)));
+        }
+        flash("success", "Computer " + userForm.get().firstName + " has been created");
+        session("id",String.valueOf(userForm.get().id));
+
+
+        User usr = User.find.where().eq("email",userForm.get().email).findUnique();
+        if(BCrypt.checkpw(userForm.get().password, usr.password)){
+            session("id",String.valueOf(usr.id));
+            return Results.redirect(
+                    routes.UserController.edit()
+            );
+        }else{
+            return ok(views.html.login.render(formFactory.form(User.class)));
+        }
+    }
 
     public Result edit() {
         Form<User> userForm = formFactory.form(User.class).fill(

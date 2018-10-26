@@ -1,0 +1,26 @@
+@(userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Edit computer</h1>
+
+    @b3.form(routes.UserController.login()) {
+
+        <fieldset>
+
+            @b3.text(userForm("email"), '_label -> "email", '_help -> "")
+            @b3.password(userForm("password"), '_label -> "password", '_help -> "")
+
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Save this computer" class="btn primary">
+        </div>
+
+    }
+
+}

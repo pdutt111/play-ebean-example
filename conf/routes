@@ -29,5 +29,8 @@ POST    /users                      controllers.UserController.save()
 GET     /users/edit                  controllers.UserController.edit()
 POST    /users/edit                  controllers.UserController.update()
 
+GET     /users/login                  controllers.UserController.loginPage()
+POST    /users/login                  controllers.UserController.login()
+
 
 

@@ -26,6 +26,7 @@ public class User extends com.avaje.ebean.Model {
     public String city;
     public String country;
     public int zip;
+
     public static Find<Long,User> find = new Find<Long,User>(){};
 
     public static User getUser(String email,String password) {

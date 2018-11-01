@@ -1,0 +1,30 @@
+@(userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Reset the password</h1>
+
+    @b3.form(routes.UserController.reset()) {
+
+        <fieldset>
+
+            @b3.text(userForm("vercode"), '_label -> "verify code: ", '_help -> "")
+            @b3.text(userForm("newpwd"), '_label -> "new password: ", '_help -> "")
+        
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Reset password" class="btn primary">
+        </div>
+
+    }
+
+}
+
+
+
+

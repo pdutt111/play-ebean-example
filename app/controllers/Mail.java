@@ -1,30 +1,30 @@
 package controllers;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.CompletionStage;
+
 import org.apache.commons.mail.*;
+
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
 
 public class Mail {
     public String send(String mailAddress) {
         String devStr = (int)(Math.random()*100000000)+"";
         System.out.println(devStr);
-        Email email = new SimpleEmail();
+        HtmlEmail email = new HtmlEmail();
         email.setHostName("smtp.gmail.com");
         email.setSmtpPort(465);
         email.setSSLOnConnect(true);
-        email.setAuthenticator(new DefaultAuthenticator("account@gmail.com", "password"));
+        email.setAuthenticator(new DefaultAuthenticator("pdutt111@gmail.com", "hamptapass@123"));
         email.setSSLOnConnect(true);
         try{
-            email.setFrom("jp2013213323@gmail.com");
-            email.setSubject("erification");
-            email.setMsg("Your verify code is : "+devStr);
+            email.setFrom("pdutt111@gmail.com");
+            email.setSubject("Password reset link");
+            email.setHtmlMsg("Click <a href=\"http://localhost:9000/users/reset/"+devStr+"\">here</a> to reset your link ");
             email.addTo(mailAddress);
             email.send();
+            System.out.println("message sent");
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e.getMessage());
             System.out.println("error!!!!");
         }

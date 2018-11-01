@@ -6,7 +6,17 @@
 
 @main {
 
-    <h1>Edit computer</h1>
+    <h1>Login</h1>
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+    @if(flash.containsKey("failure")) {
+        <div class="alert-message error">
+            <strong>Error!</strong> @flash.get("failure")
+        </div>
+    }
 
     @b3.form(routes.UserController.login()) {
 
@@ -18,9 +28,15 @@
         </fieldset>
 
         <div class="actions">
-            <input type="submit" value="Save this computer" class="btn primary">
+            <input type="submit" value="Login" class="btn primary">
         </div>
 
+    }
+    @b3.form(routes.UserController.forgot()) {
+        <input type="submit" value="Forgot Password" class="btn primary">
+    }
+    @b3.form(routes.UserController.create(), 'class -> "topRight") {
+        <input type="submit" value="Register" class="btn primary">
     }
 
 }

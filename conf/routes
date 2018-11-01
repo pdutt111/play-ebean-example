@@ -25,12 +25,15 @@ GET     /assets/*file               controllers.Assets.at(path="/public", file)
 #User Calls
 GET     /users/new                  controllers.UserController.create()
 POST    /users                      controllers.UserController.save()
-
+GET     /users/forgot                  controllers.UserController.forgot()
+POST     /users/forgot                  controllers.UserController.forgotPost()
 GET     /users/edit                  controllers.UserController.edit()
 POST    /users/edit                  controllers.UserController.update()
-
+GET     /users                      controllers.UserController.loginPage()
 GET     /users/login                  controllers.UserController.loginPage()
 POST    /users/login                  controllers.UserController.login()
-
+POST    /users/logout                  controllers.UserController.logout()
+GET     /users/reset/:id               controllers.UserController.reset(id: String)
+POST     /users/reset/               controllers.UserController.resetPassword()
 
 

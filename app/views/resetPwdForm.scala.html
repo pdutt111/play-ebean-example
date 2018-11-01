@@ -1,4 +1,4 @@
-@(userForm: Form[User])
+@* @(userForm: Form[User])
 
 @import helper._
 
@@ -14,7 +14,7 @@
 
             @b3.text(userForm("vercode"), '_label -> "verify code: ", '_help -> "")
             @b3.text(userForm("newpwd"), '_label -> "new password: ", '_help -> "")
-        
+
         </fieldset>
 
         <div class="actions">
@@ -23,7 +23,7 @@
 
     }
 
-}
+} *@
 
 
 

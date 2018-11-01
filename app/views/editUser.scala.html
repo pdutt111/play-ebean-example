@@ -1,4 +1,4 @@
-@(id: Long, userForm: Form[User])
+@(id: Long, userForm: Form[UpdateUser])
 
 @import helper._
 
@@ -7,7 +7,19 @@
 @main {
 
     <h1>Edit User</h1>
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+    @if(flash.containsKey("failure")) {
+        <div class="alert-message error">
+            <strong>Error!</strong> @flash.get("failure")
+        </div>
+    }
+    @b3.form(routes.UserController.logout()) {
     <input type="submit" value="Log Out" class="btn primary">
+    }
 
     @b3.form(routes.UserController.update()) {
 
@@ -23,15 +35,6 @@
             @b3.text(userForm("city"), '_label -> "city", '_help -> "")
             @b3.text(userForm("country"), '_label -> "country", '_help -> "")
             @b3.text(userForm("zip"), '_label -> "zip", '_help -> "")
-@*//            @b3.date(computerForm("introduced"), '_label -> "Introduced date", '_help -> "")*@
-@*//            @b3.date(computerForm("discontinued"), '_label -> "Discontinued date", '_help -> "")*@
-
-@*//            @b3.select(*@
-@*//                computerForm("company.id"),*@
-@*//                options(Company.options),*@
-@*//                '_label -> "Company", '_default -> "-- Choose a company --",*@
-@*//                '_showConstraints -> false*@
-@*//            )*@
 
         </fieldset>
 

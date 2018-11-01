@@ -6,28 +6,39 @@
 
 @main {
 
-    <h1>Add a computer</h1>
-
+    <h1>Register</h1>
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+    @if(flash.containsKey("failure")) {
+        <div class="alert-message error">
+            <strong>Error!</strong> @flash.get("failure")
+        </div>
+    }
+    @b3.form(routes.UserController.loginPage(), 'class -> "topRight") {
+        <input type="submit" value="Login" class="btn primary">
+    }
     @b3.form(routes.UserController.save()) {
 
         <fieldset>
-            @b3.text(userForm("email"), '_label -> "email", '_help -> "")
+            @b3.email(userForm("email"), '_label -> "email", '_help -> "")
             @b3.password(userForm("password"), '_label -> "Password", '_help -> "")
             @b3.text(userForm("firstName"), '_label -> "first name", '_help -> "")
             @b3.text(userForm("lastName"), '_label -> "last name", '_help -> "")
-            @b3.textarea(userForm("researchAreas"), '_label -> "research areas hi", '_help -> "")
+            @b3.textarea(userForm("researchAreas"), '_label -> "research areas", '_help -> "")
             @b3.text(userForm("position"), '_label -> "position", '_help -> "")
-            @b3.text(userForm("phone"), '_label -> "phone", '_help -> "")
-            @b3.text(userForm("fax"), '_label -> "fax", '_help -> "")
+            @b3.number(userForm("phone"), '_label -> "phone", '_help -> "")
+            @b3.number(userForm("fax"), '_label -> "fax", '_help -> "")
             @b3.text(userForm("address"), '_label -> "address", '_help -> "")
             @b3.text(userForm("city"), '_label -> "city", '_help -> "")
             @b3.text(userForm("country"), '_label -> "country", '_help -> "")
-            @b3.text(userForm("zip"), '_label -> "zip", '_help -> "")
+            @b3.number(userForm("zip"), '_label -> "zip", '_help -> "",'value->0)
         </fieldset>
 
         <div class="actions">
-            <input type="submit" value="Register" class="btn primary"> or
-            <a href="@routes.HomeController.list()" class="btn">Cancel</a>
+            <input type="submit" value="Register" class="btn primary">
         </div>
 
     }

@@ -1,0 +1,26 @@
+@(userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Forgot Password</h1>
+
+    @b3.form(routes.UserController.forgotPost()) {
+
+        <fieldset>
+            @b3.email(userForm("email"), '_label -> "email", '_help -> "")
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="forgot" class="btn primary">
+        </div>
+
+    }
+    @b3.form(routes.UserController.loginPage(), 'class -> "topRight") {
+        <input type="submit" value="Login" class="btn primary">
+    }
+
+}

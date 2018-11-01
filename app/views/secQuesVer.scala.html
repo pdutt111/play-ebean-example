@@ -1,0 +1,28 @@
+@(userForm: Form[User])
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Verify the security questions</h1>
+
+    @b3.form(routes.UserController.verify()) {
+
+        <fieldset>
+
+            @b3.text(userForm("secque1"), '_label -> "security question 1: ", '_help -> "")
+            @b3.text(userForm("secans1"), '_label -> "answer: ", '_help -> "")
+            @b3.text(userForm("secque2"), '_label -> "security question 2: ", '_help -> "")
+            @b3.text(userForm("secans2"), '_label -> "answer: ", '_help -> "")
+        
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Send code to my email" class="btn primary">
+        </div>
+
+    }
+
+}

@@ -16,7 +16,7 @@ public class Mail {
         email.setHostName("smtp.gmail.com");
         email.setSmtpPort(465);
         email.setSSLOnConnect(true);
-        email.setAuthenticator(new DefaultAuthenticator("jp2013213323@gmail.com", "ly5364983"));
+        email.setAuthenticator(new DefaultAuthenticator("account@gmail.com", "password"));
         email.setSSLOnConnect(true);
         try{
             System.out.println("enter into mail 1......");

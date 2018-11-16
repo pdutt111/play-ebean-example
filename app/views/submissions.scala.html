@@ -1,0 +1,44 @@
+@(id: Long, submissions: List[Submission], authority: String)
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Create Submission</h1>
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+    @if(flash.containsKey("failure")) {
+        <div class="alert-message error">
+            <strong>Error!</strong> @flash.get("failure")
+        </div>
+    }
+    @b3.form(routes.UserController.logout()) {
+        <input type="submit" value="Log Out" class="btn primary">
+    }
+
+    @b3.form(routes.UserController.edit()) {
+        <input type="submit" value="Edit User" class="btn primary">
+    }
+    @b3.form(routes.SubmissionsController.createSubmission()) {
+        <input type="submit" value="Create Submission" class="btn primary">
+    }
+    <table>
+    @for(index <- 0 until submissions.size()) {
+        <tr>
+            <td>
+                <a href="/users/submission/@submissions.get(index).id" >@submissions.get(index).title</a>
+            </td>
+            <td>@if(submissions.get(index).status == "0") {Pending} else {Approved}</td>
+            @if(authority == "admin"){
+                <td>@submissions.get(index).email</td>
+            }
+        </tr>
+    }
+    </table>
+
+}

@@ -1,4 +1,4 @@
-@(id: Long, userForm: Form[UpdateUser])
+@(id: Long, userForm: Form[UpdateUser],authority: String)
 
 @import helper._
 
@@ -21,6 +21,9 @@
     <input type="submit" value="Log Out" class="btn primary">
     }
 
+        @b3.form(routes.SubmissionsController.fetchSubmissions()) {
+            <input type="submit" value="Check Submissions" class="btn primary">
+        }
     @b3.form(routes.UserController.update()) {
 
         <fieldset>
@@ -35,6 +38,7 @@
             @b3.text(userForm("city"), '_label -> "city", '_help -> "")
             @b3.text(userForm("country"), '_label -> "country", '_help -> "")
             @b3.text(userForm("zip"), '_label -> "zip", '_help -> "")
+            @b3.text(userForm("authority"), '_label -> "authority", '_help -> "")
 
         </fieldset>
 

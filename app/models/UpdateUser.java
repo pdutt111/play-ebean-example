@@ -14,6 +14,7 @@ public class UpdateUser {
     public int zip;
     public String email;
     public String password;
+    public String authority;
 
     public UpdateUser(){}
     public UpdateUser(User user){
@@ -27,5 +28,6 @@ public class UpdateUser {
         this.city = user.city;
         this.country = user.country;
         this.zip = user.zip;
+        this.authority = user.authority;
     }
 }

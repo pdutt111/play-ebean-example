@@ -1,0 +1,54 @@
+@(id: Long, userForm: Form[Submission], authority: String, submissionId: Long)
+
+@import helper._
+
+@import b3.vertical.fieldConstructor  // Declares a vertical field constructor as default
+
+@main {
+
+    <h1>Create Submission</h1>
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+    @if(flash.containsKey("failure")) {
+        <div class="alert-message error">
+            <strong>Error!</strong> @flash.get("failure")
+        </div>
+    }
+    @b3.form(routes.UserController.logout()) {
+        <input type="submit" value="Log Out" class="btn primary">
+    }
+    @b3.form(routes.SubmissionsController.fetchSubmissions()) {
+        <input type="submit" value="Check Submissions" class="btn primary">
+    }
+    @if(authority == "admin") {
+        @b3.form(routes.SubmissionsController.approve(submissionId)) {
+            <input type="submit" value="Approve Submission" class="btn primary">
+        }
+    }
+    @b3.form(routes.SubmissionsController.update(submissionId)) {
+
+        <fieldset>
+            @b3.text(userForm("title"), '_label -> "Title", '_help -> "")
+            @b3.text(userForm("categories"), '_label -> "Categories", '_help -> "")
+            @b3.text(userForm("author1"), '_label -> "Author 1", '_help -> "")
+            @b3.text(userForm("author2"), '_label -> "Author 2", '_help -> "")
+            @b3.text(userForm("author3"), '_label -> "Author 3", '_help -> "")
+            @b3.text(userForm("author4"), '_label -> "Author 4", '_help -> "")
+            @b3.text(userForm("author5"), '_label -> "Author 5", '_help -> "")
+            @b3.text(userForm("author6"), '_label -> "Author 6", '_help -> "")
+            @b3.text(userForm("author7"), '_label -> "Author 7", '_help -> "")
+            @b3.textarea(userForm("projectAbstract"), '_label -> "Abstract", '_help -> "")
+            @b3.textarea(userForm("details"), '_label -> "Details", '_help -> "")
+
+        </fieldset>
+
+        <div class="actions">
+            <input type="submit" value="Update" class="btn primary">
+        </div>
+
+    }
+
+}

@@ -2,7 +2,6 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Transaction;
-import models.Computer;
 import models.Forgot;
 import models.UpdateUser;
 import models.User;
@@ -16,7 +15,6 @@ import play.mvc.Results;
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class UserController extends Controller {
     private FormFactory formFactory;
@@ -26,11 +24,6 @@ public class UserController extends Controller {
         this.formFactory = formFactory;
 
     }
-
-    public Result GO_HOME = Results.redirect(
-//        routes.HomeController.list(0, "name", "asc", "")
-            routes.HomeController.list(0,"name","asc","")
-    );
     public Result loginPage(){
         return ok(views.html.login.render(formFactory.form(User.class)));
     }
@@ -58,11 +51,12 @@ public class UserController extends Controller {
     }
     public Result edit() {
         UpdateUser user = new UpdateUser(User.find.byId(Long.parseLong(session("id"))));
+//        System.out.println(user.authority);
         Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).fill(
                 user
         );
         return ok(
-                views.html.editUser.render(Long.parseLong(session("id")), userForm)
+                views.html.editUser.render(Long.parseLong(session("id")), userForm,user.authority)
         );
     }
     public Result save() {
@@ -79,7 +73,7 @@ public class UserController extends Controller {
                     views.html.createUser.render(formFactory.form(User.class))
             );
         }
-        flash("success", "Computer " + userForm.get().firstName + " has been created");
+        flash("success", "User " + userForm.get().firstName + " has been created");
         session("id",String.valueOf(userForm.get().id));
         return Results.redirect(
 //        routes.HomeController.list(0, "name", "asc", "")
@@ -145,14 +139,13 @@ public class UserController extends Controller {
     public Result update() throws PersistenceException {
         Long id = Long.parseLong(session("id"));
         Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).bindFromRequest();
-        System.out.println(userForm.errorsAsJson().toString());
+        User savedUser = User.find.byId(id);
         if(userForm.hasErrors()) {
-            return badRequest(views.html.editUser.render(id, userForm));
+            return badRequest(views.html.editUser.render(id, userForm,savedUser.authority));
         }
 
         Transaction txn = Ebean.beginTransaction();
         try {
-            User savedUser = User.find.byId(id);
             if (savedUser != null) {
                 UpdateUser newUserData = userForm.get();
                 savedUser.address = newUserData.address;
@@ -175,7 +168,7 @@ public class UserController extends Controller {
         }
 
         return ok(
-                views.html.editUser.render(Long.parseLong(session("id")), userForm)
+                views.html.editUser.render(Long.parseLong(session("id")), userForm,savedUser.authority)
         );
     }
 }

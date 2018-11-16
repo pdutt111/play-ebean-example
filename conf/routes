@@ -35,5 +35,11 @@ POST    /users/login                  controllers.UserController.login()
 POST    /users/logout                  controllers.UserController.logout()
 GET     /users/reset/:id               controllers.UserController.reset(id: String)
 POST     /users/reset/               controllers.UserController.resetPassword()
+GET     /users/submission/new               controllers.SubmissionsController.createSubmission()
+POST     /users/submission/new               controllers.SubmissionsController.save()
+GET     /users/submission/all               controllers.SubmissionsController.fetchSubmissions()
+GET     /users/submission/:id              controllers.SubmissionsController.fetchSubmission(id: Long)
+POST     /users/submission/approve/:id              controllers.SubmissionsController.approve(id: Long)
+POST     /users/submission/:id              controllers.SubmissionsController.update(id: Long)
 
 

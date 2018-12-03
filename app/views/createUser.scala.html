@@ -23,7 +23,7 @@
     @b3.form(routes.UserController.save()) {
 
         <fieldset>
-            @b3.email(userForm("email"), '_label -> "email", '_help -> "")
+            @b3.email(userForm("email"), '_label -> "email", '_help -> "", '_nonEmptyText -> "true")
             @b3.password(userForm("password"), '_label -> "Password", '_help -> "")
             @b3.text(userForm("firstName"), '_label -> "first name", '_help -> "")
             @b3.text(userForm("lastName"), '_label -> "last name", '_help -> "")

@@ -1,4 +1,4 @@
-@(id: Long, submissions: List[Submission], authority: String)
+@(submissions: List[Submission], authority: String)
 
 @import helper._
 
@@ -28,7 +28,7 @@
         <input type="submit" value="Create Submission" class="btn primary">
     }
     <table>
-    @for(index <- 0 until submissions.size()) {
+    @for(index <- (submissions.size()-1) to 0 by -1) {
         <tr>
             <td>
                 <a href="/users/submission/@submissions.get(index).id" >@submissions.get(index).title</a>

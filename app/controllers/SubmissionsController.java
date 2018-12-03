@@ -2,6 +2,8 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Transaction;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import models.BackendCalls;
 import models.Submission;
 import models.UpdateUser;
 import models.User;
@@ -13,111 +15,152 @@ import play.mvc.Results;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubmissionsController  extends Controller {
+public class SubmissionsController extends Controller {
     private FormFactory formFactory;
     GlobalObjects globalObjects = new GlobalObjects();
+    BackendCalls calls = new BackendCalls();
+
     @Inject
     public SubmissionsController(FormFactory formFactory) {
         this.formFactory = formFactory;
 
     }
+
     public Result createSubmission() {
-        UpdateUser user = new UpdateUser(User.find.byId(Long.parseLong(session("id"))));
-        Form<Submission> userForm = formFactory.form(Submission.class);
-        return ok(
-                views.html.createSubmission.render(Long.parseLong(session("id")), userForm,user.authority)
-        );
-    }
-    public Result fetchSubmissions() {
-        User user =User.find.byId(Long.parseLong(session("id")));
-        List<Submission> submissions = Submission.find.where().eq("email",user.email).findList();
-        if(user.authority.equals("admin")){
-            submissions = Submission.find.all();
-        }
-        return ok(
-                views.html.submissions.render(Long.parseLong(session("id")), submissions,user.authority)
-        );
-    }
-    public Result fetchSubmission(Long id) {
-        User user = User.find.byId(Long.parseLong(session("id")));
-        Submission submission = Submission.find.where().eq("id",id).findUnique();
-        if(!user.authority.equals("admin")){
-            submission = Submission.find.where().eq("email",user.email).eq("id",id).findUnique();
-        }
-        Form<Submission> submissionForm = formFactory.form(Submission.class)
-                .fill(submission);
-        return ok(
-                views.html.changeSubmission.render(Long.parseLong(session("id")), submissionForm,user.authority,id)
-        );
-    }
-    public Result save() {
-        User user = User.find.byId(Long.parseLong(session("id")));
-        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
-        if(submissionForm.hasErrors()) {
-            flash("failure", "Problems creating submission");
-            return badRequest(views.html.createSubmission.render(Long.parseLong(session("id")), submissionForm,user.authority));
-        }
-        try{
-            submissionForm.get().status = "0";
-            submissionForm.get().email = user.email;
-            submissionForm.get().save();
-        }catch(PersistenceException e){
-            e.printStackTrace();
-            flash("failure", "Error creating user!");
+        try {
+            UpdateUser user = new UpdateUser(calls.getUser(session("id")));
+            Form<Submission> userForm = formFactory.form(Submission.class);
             return ok(
-                    views.html.changeSubmission.render(Long.parseLong(session("id")), submissionForm,user.authority,submissionForm.get().id)
+                    views.html.createSubmission.render(userForm, user.authority)
+            );
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
             );
         }
-        flash("success", "Submission has been created");
-        return Results.redirect(
-                routes.SubmissionsController.fetchSubmissions()
-        );
     }
-    public Result update(Long submissionId) throws PersistenceException {
-        User user = User.find.byId(Long.parseLong(session("id")));
-        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
-        Submission savedSubmission = Submission.find.byId(submissionId);
-        if(submissionForm.hasErrors()) {
-            return badRequest(views.html.createSubmission.render(Long.parseLong(session("id")), submissionForm,user.authority));
-        }
 
-        Transaction txn = Ebean.beginTransaction();
+    public Result fetchSubmissions() {
         try {
-            if (savedSubmission != null) {
-                savedSubmission = submissionForm.get();
-                savedSubmission.email = user.email;
-                savedSubmission.id = submissionId;
-                savedSubmission.status = "0";
-                savedSubmission.update();
-                flash("success", "Submission has been updated");
-                txn.commit();
-            }
-        } finally {
-            txn.end();
+            User user = calls.getUser(session("id"));
+            List<Submission> submissions = calls.fetchSubmissions(user);
+            return ok(
+                    views.html.submissions.render(submissions, user.authority)
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
         return Results.redirect(
-                routes.SubmissionsController.fetchSubmission(submissionId)
+                routes.UserController.loginPage()
         );
     }
-    public Result approve(Long submissionId) throws PersistenceException {
-        User user = User.find.byId(Long.parseLong(session("id")));
-        System.out.println(user.authority);
-        if(user.authority.equals("admin")){
-            System.out.println("changing submission status");
-            Transaction txn = Ebean.beginTransaction();
-            System.out.println(submissionId);
-            Submission submission = Submission.find.byId(submissionId);
-            submission.status = "1";
-            submission.update();
-            txn.commit();
+
+    public Result fetchSubmission(Long id) {
+        try {
+            User user = calls.getUser(session("id"));
+            Submission submission = calls.fetchSubmission(user, id);
+            Form<Submission> submissionForm = formFactory.form(Submission.class)
+                    .fill(submission);
+            return ok(
+                    views.html.changeSubmission.render(submissionForm, user.authority, id)
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
         }
-        flash("success", "Submission has been approved");
         return Results.redirect(
-                routes.SubmissionsController.fetchSubmission(submissionId)
+                routes.UserController.loginPage()
         );
+    }
+
+    public Result save() {
+        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
+        User user = null;
+        try {
+            user = calls.getUser(session("id"));
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        try {
+            if (submissionForm.hasErrors()) {
+                flash("failure", "Problems creating submission");
+                return badRequest(views.html.createSubmission.render(submissionForm, user.authority));
+            }
+            submissionForm.get().status = "0";
+            submissionForm.get().email = user.email;
+            calls.saveSubmission(user, submissionForm.get());
+            flash("success", "Submission has been created");
+            return Results.redirect(
+                    routes.SubmissionsController.fetchSubmissions()
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            flash("failure", "Error creating Submission!");
+            return ok(
+                    views.html.changeSubmission.render(submissionForm, user.authority, submissionForm.get().id)
+            );
+        }
+    }
+
+    public Result update(Long submissionId) throws PersistenceException {
+        User user = null;
+        try {
+            user = calls.getUser(session("id"));
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
+        if (submissionForm.hasErrors()) {
+            return badRequest(views.html.createSubmission.render(submissionForm, user.authority));
+        }
+        try {
+            calls.updateSubmission(user, submissionForm.get(), submissionId);
+            return Results.redirect(
+                    routes.SubmissionsController.fetchSubmission(submissionId)
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            flash("failure", "Error updating Submission!");
+            return ok(
+                    views.html.changeSubmission.render(submissionForm, user.authority, submissionForm.get().id)
+            );
+        }
+    }
+
+    public Result approve(Long submissionId) throws PersistenceException {
+        User user = null;
+        try {
+            user = calls.getUser(session("id"));
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
+        if (submissionForm.hasErrors()) {
+            return badRequest(views.html.createSubmission.render(submissionForm, user.authority));
+        }
+        try {
+            calls.approveSubmission(user.email,submissionId);
+            flash("success", "Submission has been approved");
+            return Results.redirect(
+                    routes.SubmissionsController.fetchSubmission(submissionId)
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            flash("failure", "Error updating Submission!");
+            return ok(
+                    views.html.changeSubmission.render(submissionForm, user.authority, submissionForm.get().id)
+            );
+        }
     }
 }

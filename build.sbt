@@ -17,3 +17,6 @@ libraryDependencies += "org.apache.commons" % "commons-email" % "1.5"
 // https://mvnrepository.com/artifact/javax.mail/javax.mail-api
 libraryDependencies += "javax.mail" % "javax.mail-api" % "1.6.0"
 libraryDependencies += "javax.activation" % "activation" % "1.1.1"
+// https://mvnrepository.com/artifact/com.mashape.unirest/unirest-java
+libraryDependencies += "com.mashape.unirest" % "unirest-java" % "1.4.9"
+

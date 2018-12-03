@@ -1,4 +1,4 @@
-@(id: Long, userForm: Form[UpdateUser],authority: String)
+@(userForm: Form[UpdateUser],authority: String)
 
 @import helper._
 
@@ -6,7 +6,7 @@
 
 @main {
 
-    <h1>Edit User</h1>
+    <h1>Edit User (@authority)</h1>
     @if(flash.containsKey("success")) {
         <div class="alert-message warning">
             <strong>Done!</strong> @flash.get("success")
@@ -38,7 +38,6 @@
             @b3.text(userForm("city"), '_label -> "city", '_help -> "")
             @b3.text(userForm("country"), '_label -> "country", '_help -> "")
             @b3.text(userForm("zip"), '_label -> "zip", '_help -> "")
-            @b3.text(userForm("authority"), '_label -> "authority", '_help -> "")
 
         </fieldset>
 
@@ -48,9 +47,5 @@
         </div>
 
     }
-
-@*//    @b3.form(routes.HomeController.delete(id), 'class -> "topRight") {*@
-        @*<input type="submit" value="Delete this computer" class="btn danger">*@
-@*//    }*@
 
 }

@@ -1,7 +1,6 @@
 package controllers;
-
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import models.BackendCalls;
 import models.Forgot;
 import models.UpdateUser;
 import models.User;
@@ -14,103 +13,128 @@ import play.mvc.Results;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
-import java.util.Arrays;
 
 public class UserController extends Controller {
     private FormFactory formFactory;
     GlobalObjects globalObjects = new GlobalObjects();
+    BackendCalls calls = new BackendCalls();
+
     @Inject
     public UserController(FormFactory formFactory) {
         this.formFactory = formFactory;
 
     }
-    public Result loginPage(){
+
+    public Result loginPage() {
         return ok(views.html.login.render(formFactory.form(User.class)));
     }
+
     public Result login() {
         Form<User> userForm = formFactory.form(User.class).bindFromRequest();
-        if(userForm.hasErrors()) {
+        if (userForm.hasErrors()) {
             return ok(views.html.login.render(formFactory.form(User.class)));
         }
-        User usr = User.find.where().eq("email",userForm.get().email).findUnique();
-        if(BCrypt.checkpw(userForm.get().password, usr.password)){
-            session("id",String.valueOf(usr.id));
-            return Results.redirect(
-                    routes.UserController.edit()
-            );
-        }else{
-            flash("failure", "Error logging in check email and password!");
-            return ok(views.html.login.render(formFactory.form(User.class)));
+        try {
+            User usr = calls.getUser(userForm.get().email);
+            System.out.println(usr.password);
+            if (BCrypt.checkpw(userForm.get().password,usr.password)) {
+                session("id", String.valueOf(usr.email));
+                return Results.redirect(
+                        routes.UserController.edit()
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        flash("failure", "Error logging in check email and password!");
+        return ok(views.html.login.render(formFactory.form(User.class)));
     }
-    public Result logout(){
+
+    public Result logout() {
         session().remove("id");
         return Results.redirect(
                 routes.UserController.loginPage()
         );
     }
+
     public Result edit() {
-        UpdateUser user = new UpdateUser(User.find.byId(Long.parseLong(session("id"))));
-//        System.out.println(user.authority);
-        Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).fill(
-                user
-        );
-        return ok(
-                views.html.editUser.render(Long.parseLong(session("id")), userForm,user.authority)
-        );
+        String email = session("id");
+        if (email == null) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        try {
+            UpdateUser user = new UpdateUser(calls.getUser(email));
+            Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).fill(
+                    user
+            );
+            return ok(
+                    views.html.editUser.render(userForm, user.authority)
+            );
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
     }
+
     public Result save() {
         Form<User> userForm = formFactory.form(User.class).bindFromRequest();
-        if(userForm.hasErrors()) {
+        if (userForm.hasErrors()) {
             return badRequest(views.html.createUser.render(userForm));
         }
         userForm.get().password = BCrypt.hashpw(userForm.get().password, BCrypt.gensalt());
-        try{
-            userForm.get().save();
-        }catch(PersistenceException e){
+        try {
+            User usr = calls.saveUser(userForm.get());
+            flash("success", "User " + usr.firstName + " has been created");
+            session("id", String.valueOf(usr.email));
+            return Results.redirect(
+                    routes.UserController.edit()
+            );
+        } catch (UnirestException e) {
             flash("failure", "Error creating user!");
             return ok(
                     views.html.createUser.render(formFactory.form(User.class))
             );
         }
-        flash("success", "User " + userForm.get().firstName + " has been created");
-        session("id",String.valueOf(userForm.get().id));
-        return Results.redirect(
-//        routes.HomeController.list(0, "name", "asc", "")
-                routes.UserController.edit()
-        );
     }
+
     public Result create() {
         Form<User> userForm = formFactory.form(User.class);
         return ok(
                 views.html.createUser.render(userForm)
         );
     }
+
     public Result forgotPost() {
         Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).bindFromRequest();
-        User user= User.find.where().eq("email",userForm.get().email).findUnique();
-        if(user!=null){
+        try {
+            User user = calls.getUser(userForm.get().email);
             Mail mail = new Mail();
-            String passode = mail.send(user.email);
-            globalObjects.getForgotPasscodes().put(passode,user);
-            System.out.println(Arrays.toString(globalObjects.getForgotPasscodes().keySet().toArray()));
+            String passcode = mail.send(user.email);
+            globalObjects.getForgotPasscodes().put(passcode, user);
             return ok(
                     views.html.sentMail.render()
             );
+        } catch (UnirestException e) {
+            flash("failure", "No such user found");
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
         }
-        return Results.redirect(
-                routes.UserController.loginPage()
-        );
     }
+
     public Result reset(String id) {
         Form<User> userForm = formFactory.form(User.class);
         return ok(
-                views.html.reset.render(userForm,id)
+                views.html.reset.render(userForm, id)
         );
     }
+
     public Result resetPassword() {
         Form<Forgot> userForm = formFactory.form(Forgot.class).bindFromRequest();
-        if(globalObjects.getForgotPasscodes().get(userForm.get().passcode) == null){
+        if (globalObjects.getForgotPasscodes().get(userForm.get().passcode)==null) {
             flash("failure", "Unable to use link generate a new link");
             return Results.redirect(
                     routes.UserController.loginPage()
@@ -119,56 +143,56 @@ public class UserController extends Controller {
         User user = globalObjects.getForgotPasscodes().get(userForm.get().passcode);
         globalObjects.getForgotPasscodes().remove(userForm.get().passcode);
         user.password = BCrypt.hashpw(userForm.get().password, BCrypt.gensalt());
-        user.update();
-        session("id",String.valueOf(user.id));
-        flash("success", "User " + user.firstName + " password has been updated");
-        return Results.redirect(
-                routes.UserController.edit()
-        );
+        try {
+            calls.updatePassword(user);
+            session("id", user.email);
+            flash("success", "User " + user.firstName + " password has been updated");
+            return Results.redirect(
+                    routes.UserController.edit()
+            );
+        } catch (UnirestException e) {
+            flash("failure", "Unable to use link generate a new link");
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
     }
+
     public Result forgot() {
         Form<User> userForm = formFactory.form(User.class);
         return ok(
                 views.html.forgot.render(userForm)
         );
     }
+
     /**
      * Handle the 'edit form' submission
-     *
      */
     public Result update() throws PersistenceException {
-        Long id = Long.parseLong(session("id"));
+        String email = session("id");
         Form<UpdateUser> userForm = formFactory.form(UpdateUser.class).bindFromRequest();
-        User savedUser = User.find.byId(id);
-        if(userForm.hasErrors()) {
-            return badRequest(views.html.editUser.render(id, userForm,savedUser.authority));
-        }
-
-        Transaction txn = Ebean.beginTransaction();
+        User savedUser;
         try {
-            if (savedUser != null) {
-                UpdateUser newUserData = userForm.get();
-                savedUser.address = newUserData.address;
-                savedUser.affiliation= newUserData.affiliation;
-                savedUser.firstName= newUserData.firstName;
-                savedUser.lastName= newUserData.lastName;
-                savedUser.city= newUserData.city;
-                savedUser.country= newUserData.country;
-                savedUser.fax= newUserData.fax;
-                savedUser.phone= newUserData.phone;
-                savedUser.position= newUserData.position;
-                savedUser.researchAreas= newUserData.researchAreas;
-                savedUser.zip= newUserData.zip;
-                savedUser.update();
-                flash("success", "User " + userForm.get().firstName + " has been updated");
-                txn.commit();
-            }
-        } finally {
-            txn.end();
+            savedUser = calls.getUser(email);
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        if (userForm.hasErrors()) {
+            return badRequest(views.html.editUser.render(userForm, savedUser.authority));
         }
 
-        return ok(
-                views.html.editUser.render(Long.parseLong(session("id")), userForm,savedUser.authority)
-        );
+        try {
+            calls.updateUser(savedUser.email,userForm.get());
+            flash("success", "User " + userForm.get().firstName + " has been updated");
+            return ok(
+                    views.html.editUser.render(userForm, savedUser.authority)
+            );
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
     }
 }

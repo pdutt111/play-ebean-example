@@ -33,7 +33,11 @@
             <td>
                 <a href="/users/submission/@submissions.get(index).id" >@submissions.get(index).title</a>
             </td>
-            <td>@if(submissions.get(index).status == "0") {Pending} else {Approved}</td>
+            <td>
+                @if(submissions.get(index).status == "0") {Pending}
+                @if(submissions.get(index).status == "1") {Approved}
+                @if(submissions.get(index).status == "-1"){Rejected}
+            </td>
             @if(authority == "admin"){
                 <td>@submissions.get(index).email</td>
             }

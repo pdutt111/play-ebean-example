@@ -26,6 +26,7 @@ POST     /users/submission/new               controllers.SubmissionsController.s
 GET     /users/submission/all               controllers.SubmissionsController.fetchSubmissions()
 GET     /users/submission/:id              controllers.SubmissionsController.fetchSubmission(id: Long)
 POST     /users/submission/approve/:id              controllers.SubmissionsController.approve(id: Long)
+POST     /users/submission/reject/:id              controllers.SubmissionsController.reject(id: Long)
 POST     /users/submission/:id              controllers.SubmissionsController.update(id: Long)
 
 

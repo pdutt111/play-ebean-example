@@ -163,4 +163,31 @@ public class SubmissionsController extends Controller {
             );
         }
     }
+    public Result reject(Long submissionId) throws PersistenceException {
+        User user = null;
+        try {
+            user = calls.getUser(session("id"));
+        } catch (UnirestException e) {
+            return Results.redirect(
+                    routes.UserController.loginPage()
+            );
+        }
+        Form<Submission> submissionForm = formFactory.form(Submission.class).bindFromRequest();
+        if (submissionForm.hasErrors()) {
+            return badRequest(views.html.createSubmission.render(submissionForm, user.authority));
+        }
+        try {
+            calls.rejectSubmission(user.email,submissionId);
+            flash("success", "Submission has been rejected");
+            return Results.redirect(
+                    routes.SubmissionsController.fetchSubmission(submissionId)
+            );
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            flash("failure", "Error updating Submission!");
+            return ok(
+                    views.html.changeSubmission.render(submissionForm, user.authority, submissionForm.get().id)
+            );
+        }
+    }
 }

@@ -27,6 +27,9 @@
         @b3.form(routes.SubmissionsController.approve(submissionId)) {
             <input type="submit" value="Approve Submission" class="btn primary">
         }
+        @b3.form(routes.SubmissionsController.reject(submissionId)) {
+            <input type="submit" value="Reject Submission" class="btn primary">
+        }
     }
     @b3.form(routes.SubmissionsController.update(submissionId)) {
 

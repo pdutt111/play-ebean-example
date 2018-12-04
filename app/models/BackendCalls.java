@@ -97,4 +97,12 @@ public class BackendCalls {
             throw new UnirestException(new Exception());
         }
     }
+    public static void rejectSubmission(String email,Long id) throws UnirestException {
+        System.out.println("approving submission"+id+email);
+        HttpResponse<String> resp = Unirest.post(BASE_URL + "/users/"+email+"/submission/reject/"+id)
+                .asString();
+        if(resp.getStatus() == 400){
+            throw new UnirestException(new Exception());
+        }
+    }
 }

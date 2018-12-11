@@ -1,0 +1,13 @@
+git clone project
+
+the database name required for the project to work is playexamplemysql create the project
+
+the username and password configured are root and ""
+
+open sbt shell and type run
+
+open localhost:9000
+
+run the evolutions in the play
+
+do the same for play-backend and you're good to go.

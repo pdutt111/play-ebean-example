@@ -1,0 +1,6 @@
+This project aims to develop a web-based project management system to help the decision maker to verify the projects and approve features.
+The system allows users to create projects and send them for verification by the administrator.
+
+The system is useful for project management in big companies as they require strict approval processes. This system is is completely cloud based and follows service oriented protocols.
+
+The system has two types of users - regular users and administrator, the regular users can add features or projects and the administrator is charged with approving the project or to reject the project.
